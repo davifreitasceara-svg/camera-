@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Câmera Mágica AR - Web</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="ui-container">
+        <h1 class="glow-text">Câmera Mágica AR</h1>
+        <p id="status-text">Carregando IA...</p>
+        <p id="gesture-text" class="glow-text">Gesto: Aguardando...</p>
+        <div class="controls">
+            <p><strong>Nível 1 (Partículas):</strong> Use as mãos (ex: "V", "Chifres", "OK") para mudar o desenho.</p>
+            <p><strong>Nível 2 (Portal):</strong> Faça sinal de "OK" e segure para entrar no portal.</p>
+        </div>
+    </div>
+
+    <!-- Câmera Oculta (Usada apenas para alimentar a IA) -->
+    <video id="videoElement" autoplay playsinline></video>
+
+    <!-- Canvas Principal onde tudo é desenhado (Câmera + Partículas) -->
+    <canvas id="outputCanvas"></canvas>
+
+    <!-- Bibliotecas do OpenCV (Para o Canny Edge no Nível 2) -->
+    <!-- Carregando OpenCV.js de forma assíncrona -->
+    <script async src="https://docs.opencv.org/4.8.0/opencv.js" id="opencvjs"></script>
+
+    <!-- Script Principal como Módulo -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>
