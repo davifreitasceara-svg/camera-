@@ -111,41 +111,33 @@ function processPortal(videoFrame) {
 }
 
 function predictWebcam() {
-    ctx.save();
-    // Espelhar a imagem da câmera
-    ctx.translate(width, 0);
-    ctx.scale(-1, 1);
-    
     let isBlackhole = false;
-
     if (cooldownPortal > 0) cooldownPortal--;
 
-    if (modoPortal) {
-        processPortal(); // Applies OpenCV edge detection
-    } else {
-        // Modo 1 (Metade Câmera, Metade Partículas ou Fundo Preto)
-        // Para a web, vamos desenhar um fundo gradiente legal
-        ctx.fillStyle = "rgba(10, 10, 15, 1.0)";
-        ctx.fillRect(0, 0, width, height);
-        
-        // Câmera sutil de fundo
-        ctx.globalAlpha = 0.2;
-        ctx.drawImage(video, 0, 0, width, height);
-        ctx.globalAlpha = 1.0;
-    }
+    // 1. Limpar Canvas
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, width, height);
 
     if (lastVideoTime !== video.currentTime) {
         lastVideoTime = video.currentTime;
         let startTimeMs = performance.now();
         const results = handLandmarker.detectForVideo(video, startTimeMs);
         
+        let cx = width * 0.75; // Default center on the right side
+        let cy = height / 2;
+
         if (results.landmarks && results.landmarks.length > 0) {
-            let cx = 0, cy = 0;
             let gesture = "unknown";
             
             // Analyze primary hand
             const hand0 = results.landmarks[0];
-            cx = width - (hand0[9].x * width); // mirrored X
+            
+            // Map the hand X coordinate from the left half to the right half for particles
+            // hand0.x goes from 0.0 (left) to 1.0 (right) of the camera frame
+            // In split screen, camera is on the left. 
+            // We want the particles on the right (width/2 to width) to follow the hand linearly.
+            let mirroredX = 1.0 - hand0[9].x; 
+            cx = (width / 2) + (mirroredX * (width / 2));
             cy = hand0[9].y * height;
             
             particles.updateCenter(cx, cy);
@@ -175,34 +167,41 @@ function predictWebcam() {
                     else if (gesture === "three") particles.changeShape("triangle");
                     else if (gesture === "one") particles.changeShape("iloveyou");
                     else if (gesture === "fist") isBlackhole = true;
-                    // Mapeie os outros
                 }
-            }
-
-            // Draw hand points
-            for (let point of hand0) {
-                ctx.beginPath();
-                ctx.arc(width - (point.x * width), point.y * height, 3, 0, 2*Math.PI);
-                ctx.fillStyle = "white";
-                ctx.fill();
             }
 
             gestureText.innerText = `Gesto: ${gesture.toUpperCase()}`;
         } else {
             gestureText.innerText = "Gesto: Nenhuma Mão";
-            particles.updateCenter(width/2, height/2);
+            particles.updateCenter(width * 0.75, height / 2);
             if (!modoPortal) particles.changeShape("random");
         }
     }
 
-    if (!modoPortal) {
-        // Fix coordinates since canvas is mirrored
-        // Particle system expects un-mirrored drawing ctx because we already mirrored cx.
-        // Wait, if canvas is mirrored, we should un-mirror for particles so they draw correctly, OR just draw them.
-        ctx.restore(); // Remove mirror for particles
-        particles.updateAndDraw(ctx, isBlackhole);
-    } else {
+    // 2. Renderização
+    if (modoPortal) {
+        // NÍVEL 2: Portal em Tela Cheia (Canny)
+        ctx.save();
+        // A função processPortal vai espelhar internamente e aplicar o canny
+        // Espelhar contexto
+        ctx.translate(width, 0);
+        ctx.scale(-1, 1);
+        processPortal(); 
         ctx.restore();
+    } else {
+        // NÍVEL 1: Tela Dividida (Câmera na Esquerda, Partículas na Direita)
+        let halfWidth = width / 2;
+        
+        // Desenha a câmera espelhada na METADE ESQUERDA
+        ctx.save();
+        ctx.translate(halfWidth, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, halfWidth, height);
+        ctx.restore();
+
+        // As partículas são desenhadas na METADE DIREITA
+        // O fundo da direita já é preto (por causa do fillRect no começo)
+        particles.updateAndDraw(ctx, isBlackhole);
     }
 
     requestAnimationFrame(predictWebcam);
