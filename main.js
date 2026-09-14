@@ -1,5 +1,5 @@
 // main.js
-import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.js";
+import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs";
 import { getFingersUp, classifyGesture } from "./gestures.js";
 import { ParticleSystem } from "./ParticleSystem.js";
 
