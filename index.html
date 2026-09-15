@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Silhueta AR - Web</title>
+    <title>Silhueta AR - Web (Clone Completo)</title>
     <style>
         body, html {
             margin: 0;
@@ -31,9 +31,14 @@
             text-shadow: 2px 2px 4px #000;
         }
     </style>
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div id="overlay-text">CAMERA NORMAL (Aperte ESPACO para a Magia)</div>
+    <div id="overlay-text">Carregando AR Completo...</div>
 
     <video id="videoElement" autoplay playsinline></video>
     <canvas id="outputCanvas"></canvas>
